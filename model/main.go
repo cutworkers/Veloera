@@ -159,7 +159,7 @@ func chooseDB(envName string) (*gorm.DB, error) {
 		if strings.Contains(dsn, "TLS") {
 			cfg, err := mysql.ParseDSN(dsn)
 			if err != nil {
-				common.SysLog("无法解析 DSN 字符串: %v", err)
+				common.SysLog("无法解析 DSN 字符串")
 			}
 			// 从地址中提取主机名，去掉端口号
 			host, _, err := net.SplitHostPort(cfg.Addr)
@@ -177,9 +177,8 @@ func chooseDB(envName string) (*gorm.DB, error) {
 				ServerName: host,
 			})
 			if err != nil && !strings.Contains(err.Error(), "already registered") {
-				common.SysLog("注册自定义 TLS 配置 '%s' 失败: %v", tlsConfigName, err)
+				common.SysLog("注册自定义 TLS 配置失败")
 			}
-			common.SysLog("TLS 配置 '%s' 已为 host '%s' 成功注册。\n", tlsConfigName, host)
 		}
 		common.UsingMySQL = true
 		newdsn := strings.ReplaceAll(dsn,"TLS","tls")

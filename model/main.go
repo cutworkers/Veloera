@@ -23,11 +23,14 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"crypto/tls"
+	"net"
 	"veloera/common"
 	"veloera/constant"
 
 	"github.com/glebarez/sqlite"
-	"gorm.io/driver/mysql"
+	"github.com/go-sql-driver/mysql"
+	gormMysql "gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -153,8 +156,34 @@ func chooseDB(envName string) (*gorm.DB, error) {
 				dsn += "?parseTime=true"
 			}
 		}
+		if strings.Contains(dsn, "TLS") {
+			cfg, err := mysql.ParseDSN(dsn)
+			if err != nil {
+				common.SysLog("无法解析 DSN 字符串")
+			}
+			// 从地址中提取主机名，去掉端口号
+			host, _, err := net.SplitHostPort(cfg.Addr)
+			if err != nil {
+				host = cfg.Addr // 如果没有端口号，直接使用地址
+			}
+			var tlsConfigName string
+			tlsValue, ok := cfg.Params["TLS"]
+
+			if ok {
+				tlsConfigName = tlsValue
+			}
+			err = mysql.RegisterTLSConfig(tlsConfigName, &tls.Config{
+				MinVersion: tls.VersionTLS12,
+				ServerName: host,
+			})
+			if err != nil && !strings.Contains(err.Error(), "already registered") {
+				common.SysLog("注册自定义 TLS 配置失败")
+			}
+			common.SysLog("TLS 配置成功注册")
+		}
 		common.UsingMySQL = true
-		return gorm.Open(mysql.Open(dsn), &gorm.Config{
+		newdsn := strings.ReplaceAll(dsn,"TLS","tls")
+		return gorm.Open(gormMysql.Open(newdsn), &gorm.Config{
 			PrepareStmt: true, // precompile SQL
 		})
 	}

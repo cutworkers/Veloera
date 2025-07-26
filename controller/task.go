@@ -39,7 +39,8 @@ func UpdateTaskBulk() {
 	//revocer
 	//imageModel := "midjourney"
 	for {
-		time.Sleep(time.Duration(15) * time.Second)
+		pollingInterval := common.GetEnvOrDefault("TASK_POLLING_INTERVAL", 15)
+		time.Sleep(time.Duration(pollingInterval) * time.Second)
 		common.SysLog("任务进度轮询开始")
 		ctx := context.TODO()
 		allTasks := model.GetAllUnFinishSyncTasks(500)

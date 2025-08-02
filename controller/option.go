@@ -19,6 +19,7 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"veloera/common"
 	"veloera/model"
@@ -135,7 +136,17 @@ func UpdateOption(c *gin.Context) {
 			})
 			return
 		}
-
+	case "LinuxDOMinimumTrustLevel":
+		if option.Value != "" {
+			trustLevel, err := strconv.Atoi(option.Value)
+			if err != nil || trustLevel < 0 {
+				c.JSON(http.StatusOK, gin.H{
+					"success": false,
+					"message": "LinuxDO 最低信任等级必须是非负整数",
+				})
+				return
+			}
+		}
 	}
 	err = model.UpdateOption(option.Key, option.Value)
 	if err != nil {

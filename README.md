@@ -48,14 +48,14 @@
 ## 部署
 
 > [!TIP]
-> 最新版 Docker 镜像：`ghcr.io/veloera/veloera:latest`
+> 最新版 Docker 镜像：`ghcr.io/cutworkers/veloera:latest`
 
 ### docker-compose
 
 1. 克隆此仓库
 
 ```shell
-git clone https://github.com/veloera/veloera.git
+git clone https://github.com/cutworkers/veloera.git
 cd veloera
 ```
 
@@ -71,6 +71,13 @@ nano docker-compose.yml
 docker-compose up -d
 ```
 
+## 云数据库配置说明
+
+> [!TIP]
+> 支持云数据库TiDB, DSN连接字符串添加TLS=tidb，TLS需要大写，示例：
+> xxx.root:xxx@tcp(gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000)/veloera?TLS=tidb&multiStatements=true
+> 其它云数据库需要自测
+
 ## 环境变量
 
 - `GENERATE_DEFAULT_TOKEN`：是否为新注册用户生成初始令牌，默认为 `false`
@@ -80,6 +87,7 @@ docker-compose up -d
 - `GET_MEDIA_TOKEN`：是否统计图片 token，默认 `true`
 - `GET_MEDIA_TOKEN_NOT_STREAM`：非流情况下是否统计图片 token，默认 `true`
 - `UPDATE_TASK`：是否更新异步任务（Midjourney、Suno），默认 `true`
+- `TASK_POLLING_INTERVAL`: 任务轮询间隔（单位：秒）, 默认 `15`
 - `COHERE_SAFETY_SETTING`：Cohere 模型安全设置，可选值为 `NONE`, `CONTEXTUAL`, `STRICT`，默认 `NONE`
 - `GEMINI_VISION_MAX_IMAGE_NUM`：Gemini 模型最大图片数量，默认 `16`
 - `MAX_FILE_DOWNLOAD_MB`: 最大文件下载大小，单位 MB，默认 `20`
